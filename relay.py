@@ -12,6 +12,7 @@ class Relay:
         
         self._activated = False
         self._pin = pin
+        self._type = 'relay'
         
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self._pin, GPIO.OUT)
@@ -24,6 +25,10 @@ class Relay:
     @property
     def pin(self):
         return self._pin
+    
+    @property
+    def type(self)
+        return self._type
     
     def off(self):
 
