@@ -10,6 +10,7 @@ class DHT11:
         
         self._data = None
         self._pin = pin
+        self._type = 'DHT11'
         
     @property
     def data(self):
@@ -18,6 +19,10 @@ class DHT11:
     @property
     def pin(self):
         return self._pin
+    
+    @property
+    def type(self):
+        return self._type
     
     def sense(self):
         #sensor, pin
