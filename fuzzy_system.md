@@ -46,7 +46,10 @@ Fan:
 
 ## Rule set
 
-IF Temperature is High OR Humidity is High -> Fan is High
+IF Temperature is High OR Humidity is High -> Fan is 
+
 IF Humidity is Low OR Temperature is Low -> Fan is Low
+
 IF Water is Low -> Pump is High
+
 IF Water is High -> Pump is Low
