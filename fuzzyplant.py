@@ -2,7 +2,7 @@ import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 
-class PlantEngine:
+class FuzzyPlantSystem:
 
     def __init__(self):
         # Input/output sets
