@@ -52,7 +52,8 @@ class FuzzyPlantSystem:
         self.temperature = temp
         self.water = waterLevel/4
         
-        print(self._plant_system.antecedents)
+        for antecedent in self._plant_system.ctrl.antecedents:
+            print(antecedent.input[self._plant_system])
     
     @property
     def temperature(self):
