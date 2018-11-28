@@ -1,6 +1,10 @@
 import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
+import json
+
+from dht11 import DHT11
+from watersensor import WaterSensor
 
 class FuzzyPlantSystem:
 
@@ -39,7 +43,14 @@ class FuzzyPlantSystem:
         rule4 = ctrl.Rule(self._a_water['high'], self._c_pump['low'])
 
         self._plant_system_control = ctrl.ControlSystem([rule1, rule2, rule3, rule4])
-        self._plant_system = ctrl.ControlSystemSimulation(plant_system_control)
+        self._plant_system = ctrl.ControlSystemSimulation(self._plant_system_control)
+        
+    def get_data(self):
+        humidity, temp = DHT11(17).sense()
+        waterLevel = int(WaterSensor().sense())
+        self._plant_system.input['humidity'] = humidity
+        self._plant_system.input['temperature'] = temp
+        self._plant_system.input['water'] = waterLevel/4
     
     @property
     def temperature(self):
@@ -77,3 +88,17 @@ class FuzzyPlantSystem:
     @property
     def fan_output(self):
         return self._plant_system.output['fan']
+    
+    @property
+    def output(self):
+        return self._plant_system.output
+    
+crop = FuzzyPlantSystem()
+crop.get_data()
+crop.update()
+
+print(json.dumps(crop.output, indent=4))
+
+
+
+
