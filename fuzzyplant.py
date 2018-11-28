@@ -48,9 +48,11 @@ class FuzzyPlantSystem:
     def get_data(self):
         humidity, temp = DHT11(17).sense()
         waterLevel = int(WaterSensor().sense())
-        self._plant_system.input['humidity'] = humidity
-        self._plant_system.input['temperature'] = temp
-        self._plant_system.input['water'] = waterLevel/4
+        self.humidity = humidity
+        self.temperature = temp
+        self.water = waterLevel/4
+        
+        print(self._plant_system.antecedents)
     
     @property
     def temperature(self):
@@ -67,7 +69,7 @@ class FuzzyPlantSystem:
 
     @humidity.setter
     def humidity(self, value):
-        self._plant_system.input['humidity'] = value
+        self._plant_system['humidity'] = value
 
     
     @property
@@ -93,10 +95,15 @@ class FuzzyPlantSystem:
     def output(self):
         return self._plant_system.output
     
+    
 crop = FuzzyPlantSystem()
 crop.get_data()
-crop.update()
 
+print('Water: ' + crop.water)
+print('Humidity: ' + crop.humidity)
+print('Temp: ' + crop.temperature)
+
+crop.update()
 print(json.dumps(crop.output, indent=4))
 
 
