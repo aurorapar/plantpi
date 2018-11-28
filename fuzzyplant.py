@@ -45,67 +45,37 @@ class FuzzyPlantSystem:
         self._plant_system_control = ctrl.ControlSystem([rule1, rule2, rule3, rule4])
         self._plant_system = ctrl.ControlSystemSimulation(self._plant_system_control)
         
-    def get_data(self):
         humidity, temp = DHT11(17).sense()
         waterLevel = int(WaterSensor().sense())
-        self.humidity = humidity
-        self.temperature = temp
-        self.water = waterLevel/4
-        
-        for antecedent in self._plant_system.ctrl.antecedents:
-            print(antecedent.input[self._plant_system])
-    
-    @property
-    def temperature(self):
-        return self._plant_system.input['temperature']
-
-    @temperature.setter
-    def temperature(self, value):
-        self._plant_system.input['temperature'] = value
-
-
-    @property
-    def humidity(self):
-        return self._plant_system.input['humidity']
-
-    @humidity.setter
-    def humidity(self, value):
-        self._plant_system['humidity'] = value
-
-    
-    @property
-    def water(self):
-        return self._plant_system.input['water']
-
-    @water.setter
-    def water(self, value):
-        self._plant_system['water'] = value
-
-    def update(self):
-        self._plant_system.compute()
-    
-    @property
-    def pump_output(self):
-        return self._plant_system.output['pump']
-
-    @property
-    def fan_output(self):
-        return self._plant_system.output['fan']
-    
-    @property
+        self._plant_system.input['water'] = waterLevel / 4
+        self._plant_system.input['temperature'] = temp
+        self._plant_system.input['humidity'] = humidity        
+            
     def output(self):
         return self._plant_system.output
-    
+            
+    def update(self):
+        self._plant_system.compute()
+        
+    def get_antecedent(self, item):
+        for antecedent in self._plant_system.ctrl.antecedents:
+            if item == antecedent.label:
+                return antecedent.input[self._plant_system]
+        
+    def state(self):
+        self._plant_system.print_state()
+        
     
 crop = FuzzyPlantSystem()
-crop.get_data()
-
-print('Water: ' + crop.water)
-print('Humidity: ' + crop.humidity)
-print('Temp: ' + crop.temperature)
+print('Temp: %s' % crop.get_antecedent('temperature'))
+print('Humidity: %s' % crop.get_antecedent('humidity'))
+print('Water: %s' % crop.get_antecedent('water'))
 
 crop.update()
-print(json.dumps(crop.output, indent=4))
+try:
+    print(json.dumps(crop.output(), indent=4))
+except:
+    print(crop.output())
 
 
 
