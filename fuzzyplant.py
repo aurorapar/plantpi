@@ -1,6 +1,10 @@
 import numpy as np
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
+import json
+
+from dht11 import DHT11
+from watersensor import WaterSensor
 
 class FuzzyPlantSystem:
 
@@ -39,41 +43,40 @@ class FuzzyPlantSystem:
         rule4 = ctrl.Rule(self._a_water['high'], self._c_pump['low'])
 
         self._plant_system_control = ctrl.ControlSystem([rule1, rule2, rule3, rule4])
-        self._plant_system = ctrl.ControlSystemSimulation(plant_system_control)
-    
-    @property
-    def temperature(self):
-        return self._plant_system.input['temperature']
-
-    @temperature.setter
-    def temperature(self, value):
-        self._plant_system.input['temperature'] = value
-
-
-    @property
-    def humidity(self):
-        return self._plant_system.input['humidity']
-
-    @humidity.setter
-    def humidity(self, value):
-        self._plant_system.input['humidity'] = value
-
-    
-    @property
-    def water(self):
-        return self._plant_system.input['water']
-
-    @water.setter
-    def water(self, value):
-        self._plant_system['water'] = value
-
+        self._plant_system = ctrl.ControlSystemSimulation(self._plant_system_control)
+        
+        humidity, temp = DHT11(17).sense()
+        waterLevel = int(WaterSensor().sense())
+        self._plant_system.input['water'] = waterLevel / 4
+        self._plant_system.input['temperature'] = temp
+        self._plant_system.input['humidity'] = humidity        
+            
+    def output(self):
+        return self._plant_system.output
+            
     def update(self):
         self._plant_system.compute()
+        
+    def get_antecedent(self, item):
+        for antecedent in self._plant_system.ctrl.antecedents:
+            if item == antecedent.label:
+                return antecedent.input[self._plant_system]
+        
+    def state(self):
+        self._plant_system.print_state()
+        
     
-    @property
-    def pump_output(self):
-        return self._plant_system.output['pump']
+crop = FuzzyPlantSystem()
+print('Temp: %s' % crop.get_antecedent('temperature'))
+print('Humidity: %s' % crop.get_antecedent('humidity'))
+print('Water: %s' % crop.get_antecedent('water'))
 
-    @property
-    def fan_output(self):
-        return self._plant_system.output['fan']
+crop.update()
+try:
+    print(json.dumps(crop.output(), indent=4))
+except:
+    print(crop.output())
+
+
+
+
